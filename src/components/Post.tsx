@@ -1,11 +1,28 @@
-import { useState } from 'react'
+import { ChangeEvent, FormEvent, InvalidEvent, useState } from 'react'
 import { Avatar } from './Avatar'
 import { Comment } from './Comment'
 import styles from './Post.module.css'
 import { format, formatDistanceToNow, formatISO } from 'date-fns'
 import ptBR from 'date-fns/locale/pt-BR'
 
-export function Post({ author, content, publishedAt }) {
+interface Author {
+  avatarUrl: string;
+  name: string;
+  role: string;
+}
+
+interface Content {
+  type: 'paragraph' | 'link';
+  content: string;
+}
+
+interface PostProps {
+  author: Author;
+  content: Content[];
+  publishedAt: Date;
+}
+
+export function Post({ author, content, publishedAt }:PostProps) {
 
   const dateTitle = format(publishedAt, "dd 'de' LLLL 'de' uuuu 'às' HH':'mm'h'", {locale: ptBR})
   const dateName = formatDistanceToNow(publishedAt, {
@@ -18,22 +35,22 @@ export function Post({ author, content, publishedAt }) {
   ])
   const [newCommentText, setNewCommentText] = useState('')
 
-  function handleCreateNewComment() {
+  function handleCreateNewComment(event: FormEvent) {
     event.preventDefault()
     setCommentArray([...commentArray, newCommentText])
     setNewCommentText('')
   }
 
-  function handleNewCommentChange() {
+  function handleNewCommentChange(event: ChangeEvent<HTMLTextAreaElement>) {
     setNewCommentText(event.target.value)
     event.target.setCustomValidity('')
   }
 
-  function handleInvalidNewComment() {
+  function handleInvalidNewComment(event: InvalidEvent<HTMLTextAreaElement>) {
     event.target.setCustomValidity("O comentário não pode estar vazio!")
   }
 
-  function deleteComment(commentToDelete) {
+  function deleteComment(commentToDelete: string) {
     const newCommentArrayWithoutDeletedOne = commentArray.filter(comment => {
       return comment !== commentToDelete
     })
